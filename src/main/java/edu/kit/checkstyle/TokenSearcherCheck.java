@@ -8,6 +8,10 @@ import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 
 
+/**
+ * Base class for teaching checks.
+ *
+ */
 public abstract class TokenSearcherCheck extends Check {
 
   protected void require(final boolean requirement, final String message) {
@@ -20,7 +24,7 @@ public abstract class TokenSearcherCheck extends Check {
     final DetailAST modAst = ast.findFirstToken(TokenTypes.MODIFIERS);
     require(modAst != null, "AST doesn't contain modifiers");
 
-    final Set<String> mods = new HashSet<>();
+    final Set<String> mods = new HashSet<String>();
     for (DetailAST mod = modAst.getFirstChild(); mod != null; mod = mod.getNextSibling()) {
       mods.add(mod.getText());
     }

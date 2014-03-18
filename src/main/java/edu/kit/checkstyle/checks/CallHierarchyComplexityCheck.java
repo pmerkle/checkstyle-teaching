@@ -167,7 +167,7 @@ public class CallHierarchyComplexityCheck extends TokenSearcherCheck {
       }
     });
     final DetailAST first = elems.get(0);
-    final Set<DetailAST> ret = new TreeSet<>(new Comparator<DetailAST>() {
+    final Set<DetailAST> ret = new TreeSet<DetailAST>(new Comparator<DetailAST>() {
       @Override
       public int compare(final DetailAST a1, final DetailAST a2) {
         return a1.getLineNo() - a2.getLineNo();

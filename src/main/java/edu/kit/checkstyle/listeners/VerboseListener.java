@@ -61,7 +61,7 @@ public class VerboseListener extends AutomaticBean implements AuditListener {
   }
 
   public void addException(final AuditEvent e, final Throwable aThrowable) {
-    printEvent(e);
+    System.out.println("An exception occured!");
     aThrowable.printStackTrace(System.out);
     fileErrors++;
     totalErrors++;
@@ -77,13 +77,14 @@ public class VerboseListener extends AutomaticBean implements AuditListener {
     try {
       final String[] fileParts = e.getFileName().split("/");
       final int line = e.getLine();
-      final String source = FileUtils.readLines(new File(e.getFileName())).get(line - 1);
+	  final String source = line != 0 ? FileUtils.readLines(new File(e.getFileName())).get(line - 1) : "<?>";
       final String indent = StringUtils.leftPad("", e.getColumn() - 1);
-      final List<String> parts = Arrays.asList(
-          fileParts[fileParts.length - 1], ":",
-          Integer.toString(line), ": ", e.getSeverityLevel().toString(),
-          ": ", e.getMessage(), ";\n\t", source, "\n\t", indent, "^");
-      return StringUtils.join(parts.iterator(), "");
+	  String file = fileParts.length > 0 ? fileParts[0] : "";
+	  final List<String> parts = Arrays.asList(
+	      fileParts[fileParts.length - 1], ":",
+	      Integer.toString(line), ": ", e.getSeverityLevel().toString(),
+	      ": ", e.getMessage(), ";\n\t", source, "\n\t", indent, "^");
+	  return StringUtils.join(parts.iterator(), "");
     } catch (final IOException ex) {
       ex.printStackTrace();
     }

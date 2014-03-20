@@ -5,6 +5,7 @@ import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
 
 import java.util.Set;
+import java.util.List;
 import java.util.HashSet;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -17,13 +18,19 @@ import java.io.FileNotFoundException;
  */
 public class SpellingCheck extends Check {
 
-  private Set<String> dictionary;
+  private Set<String> dictionary = new HashSet<String>();
+  private Set<String> allowedWords = new HashSet<String>();
+
+  public void setAllowedWords(String words) {
+      for (String word : words.split(",")) {
+        allowedWords.add(word.trim().toLowerCase());
+      }
+  }
+
 
   /** Initialize the checker, populate its dictionary with words */
   public void init() {
     // populate the dictionary from the system's word list
-    dictionary = new HashSet<String>();
-
     BufferedReader br;
     try {
        br = new BufferedReader(new InputStreamReader(new FileInputStream("/usr/share/dict/words")));
@@ -111,7 +118,7 @@ public class SpellingCheck extends Check {
   /** Return true iff the candidate is a known word. */
   private boolean isKnownWord(String candidate) {
     String normalized = candidate.trim().toLowerCase();
-    return dictionary.contains(normalized);
+    return dictionary.contains(normalized) || allowedWords.contains(normalized);
   }
 
   /** Return true iff the word, split by camel case, contains only known words. */

@@ -19,11 +19,14 @@ import java.io.FileNotFoundException;
 public class SpellingCheck extends Check {
 
   private Set<String> dictionary = new HashSet<String>();
-  private Set<String> allowedWords = new HashSet<String>();
+
+  private void add(String word) {
+    dictionary.add(word.trim().toLowerCase());
+  }
 
   public void setAllowedWords(String words) {
       for (String word : words.split(",")) {
-        allowedWords.add(word.trim().toLowerCase());
+        add(word);
       }
   }
 
@@ -41,7 +44,7 @@ public class SpellingCheck extends Check {
     String line;
     try {
         while ((line = br.readLine()) != null) {
-            dictionary.add(line.trim().toLowerCase());
+            add(line);
         }
     } catch (IOException e) {
         throw new RuntimeException("Dictionary not readable", e);
@@ -52,6 +55,14 @@ public class SpellingCheck extends Check {
     } catch (IOException e) {
         throw new RuntimeException("Dictionary not closeable", e);
     }
+
+    // prefixes/suffixes
+    add("meta");
+    add("multi");
+
+    // non-dictionary identifiers used in java by convention
+    add("args");
+    add("serialVersionUID");
   }
 
   @Override
@@ -98,7 +109,7 @@ public class SpellingCheck extends Check {
 
     // variable -> attribute if the definition is directly in a class
     if (isAttributeDefinition(ast)) {
-        return "attribute";
+        return "Attribute";
     }
 
     String type = ast.getText().toLowerCase();
@@ -118,7 +129,7 @@ public class SpellingCheck extends Check {
   /** Return true iff the candidate is a known word. */
   private boolean isKnownWord(String candidate) {
     String normalized = candidate.trim().toLowerCase();
-    return dictionary.contains(normalized) || allowedWords.contains(normalized);
+    return dictionary.contains(normalized);
   }
 
   /** Return true iff the word, split by camel case, contains only known words. */
@@ -170,6 +181,6 @@ public class SpellingCheck extends Check {
     }
 
     // if everything fails it looks like bad spelling
-    log(ast.getLineNo(), ast.getColumnNo(), definitionType(ast) + " declaration \'" + id + "\' looks like bad spelling.");
+    log(ast.getLineNo(), ast.getColumnNo(), "spelling", definitionType(ast), id);
   }
 }

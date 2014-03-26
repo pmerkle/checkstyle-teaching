@@ -25,31 +25,32 @@ public class InstanceofUsageCheck extends TokenSearcherCheck {
 
   @Override
   public void visitToken(final DetailAST ast) {
-    final int line = ast.getLineNo();
-    final int column = ast.getColumnNo();
-
     final DetailAST methodDef = getContainingMethod(ast);
     final boolean isEqualsMethod = methodDef == null ? false : isEqualsMethod(methodDef);
 
     if (!isEqualsMethod) {
-      log(line, column, "instanceof may only be used in the equals method");
+      log(ast.getLineNo(), ast.getColumnNo(), "instanceof should only be used in the equals method.");
     }
   }
 
   private boolean isEqualsMethod(final DetailAST methodDef) {
     final DetailAST methodName = methodDef.findFirstToken(TokenTypes.IDENT);
+    if (!eqName(methodName, "equals")) {
+        return false;
+    }
+
     final DetailAST methodType = methodDef.findFirstToken(TokenTypes.TYPE);
+    if (!eqTypeASTName(methodType, "boolean")) {
+        return false;
+    }
+
     final DetailAST params = methodDef.findFirstToken(TokenTypes.PARAMETERS);
-    final DetailAST paramType = params.findFirstToken(TokenTypes.PARAMETER_DEF).findFirstToken(TokenTypes.TYPE);
+    if (!eqParamCount(params, 1)) {
+        return false;
+    }
 
     final Set<String> mods = modifierNames(methodDef);
-
-    return
-        mods.contains("public") && !mods.contains("static") &&
-        eqName(methodName, "equals") &&
-        eqTypeASTName(methodType, "boolean") &&
-        eqTypeASTName(paramType, "Object") &&
-        eqParamCount(params, 1);
+    return mods.contains("public") && !mods.contains("static");
   }
 
   private boolean eqParamCount(final DetailAST ast, final int count) {

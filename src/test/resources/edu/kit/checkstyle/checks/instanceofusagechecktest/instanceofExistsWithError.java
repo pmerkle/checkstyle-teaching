@@ -22,12 +22,6 @@ public class instanceofExistsWithError {
   }
 
   // wrong signature
-  public boolean equals(String i) {
-    if (i instanceof String) {}
-    return false;
-  }
-  
-  // wrong signature
   public static boolean equals(String i) {
     if (i instanceof String) {}
     return false;

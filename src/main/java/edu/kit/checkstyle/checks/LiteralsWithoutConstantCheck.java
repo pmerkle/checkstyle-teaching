@@ -12,14 +12,21 @@ import java.util.HashMap;
 /**
  * Detect usage of literals in the middle of the code.
  */
-public class LiteralCheck extends Check {
+public class LiteralsWithoutConstantCheck extends Check {
 
   private Map<String, Integer> counts = new HashMap<String,Integer>();
 
-  private int intLimit = 5;
+  private int stringMax = -1;
 
-  public void setIntLimit(int limit) {
-      intLimit = limit;
+  /** Provide a specific limit for strings */
+  public void setStringMax(int maximum) {
+      stringMax = maximum;
+  }
+
+  private int max = 5;
+
+  public void setMax(int maximum) {
+      max = maximum;
   }
 
   /**
@@ -72,19 +79,17 @@ public class LiteralCheck extends Check {
       return;
     }
 
-    // everything else will be reported
-    if (ast.getType() == TokenTypes.STRING_LITERAL) {
-      // always report strings
-      log(line, column, "The string literal " + text + " should be put in static final attribute.");
+    // get actual count and limit
+    int maximum = ast.getType() == TokenTypes.STRING_LITERAL && stringMax != -1 ? stringMax : max;
+    int count = counts.containsKey(text) ? counts.get(text) + 1 : 1;
+
+    // count them and only report them if they are repeatedly used
+    if (count == maximum + 1) {
+      // report the count once
+      log(line, column, "literals.without.constant", text, maximum);
     } else {
-      // count them and only report them if they are repeatedly used
-      Integer count = counts.containsKey(text) ? counts.get(text) : 0;
-      if (count <= intLimit) {
-        counts.put(text, count + 1);
-      } else if (count ==  intLimit + 1) {
-        log(line, column, "The literal " + text + " is used more than " + intLimit + " times and should be put in a static final attribute.");
-        counts.put(text, count + 1);
-      }
+        // do nothing, because the value was either less than allowed or it was already reported
     }
+    counts.put(text, count);
   }
 }

@@ -157,7 +157,7 @@ public class ControlFlowNestingDepthCheck extends Check {
     }
 
     if (depth > max) {
-      log(line, column, "Control flow is nested " + depth + " levels deep (limit is " + max + ").");
+      log(line, column, "control.flow.nesting.depth", depth, max);
     }
   }
 }

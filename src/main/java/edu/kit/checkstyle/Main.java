@@ -144,10 +144,6 @@ public final class Main
             files.add(new File(element));
         }
 
-        if (files.isEmpty() && !aLine.hasOption("r")) {
-            System.out.println("Must specify files to process");
-            usage();
-        }
         return files;
     }
 
@@ -179,7 +175,7 @@ public final class Main
         hf.printHelp(
             "java "
                 + Main.class.getName()
-                + " [options] -c <config.xml> file...",
+                + " <source.java>* < <config.xml>",
             OPTS);
         System.exit(1);
     }

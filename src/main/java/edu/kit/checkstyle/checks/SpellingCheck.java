@@ -60,9 +60,11 @@ public class SpellingCheck extends Check {
     add("meta");
     add("multi");
 
-    // non-dictionary identifiers used in java by convention
+    // non-dictionary identifiers (some even used in java by convention)
     add("args");
     add("serialVersionUID");
+    add("int");
+    add("filename");
   }
 
   @Override

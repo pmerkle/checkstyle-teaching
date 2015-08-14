@@ -28,7 +28,6 @@ import com.puppycrawl.tools.checkstyle.ConfigurationLoader;
 import com.puppycrawl.tools.checkstyle.api.AuditListener;
 import com.puppycrawl.tools.checkstyle.api.CheckstyleException;
 import com.puppycrawl.tools.checkstyle.api.Configuration;
-import com.puppycrawl.tools.checkstyle.api.Utils;
 
 import com.google.common.collect.Lists;
 
@@ -223,7 +222,12 @@ public final class Main
             System.exit(1);
         }
         finally {
-            Utils.closeQuietly(fis);
+            try {
+                fis.close();
+            } catch (IOException e) {
+                // close quietly
+            }
+
         }
 
         return properties;

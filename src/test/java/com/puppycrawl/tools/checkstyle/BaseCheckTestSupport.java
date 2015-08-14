@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -69,7 +70,7 @@ public abstract class BaseCheckTestSupport {
   /** a brief logger that only display info about errors */
   protected static class BriefLogger extends DefaultLogger {
 
-    public BriefLogger(final OutputStream out) {
+    public BriefLogger(final OutputStream out) throws UnsupportedEncodingException {
       super(out, true);
     }
 

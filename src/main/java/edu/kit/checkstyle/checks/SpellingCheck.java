@@ -1,22 +1,26 @@
 package edu.kit.checkstyle.checks;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.HashSet;
+import java.util.Set;
+
 import com.puppycrawl.tools.checkstyle.api.Check;
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
-
-import java.util.Set;
-import java.util.List;
-import java.util.HashSet;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.FileNotFoundException;
 
 /**
  * Check if spelling is corrrect according to the system dictionary.
  */
 public class SpellingCheck extends Check {
+
+  private static final String DICT_FILENAME = "aspell.dict";
+
+  private static final String CUSTOM_DICT_FILENAME = "custom.dict";
 
   private Set<String> dictionary = new HashSet<String>();
 
@@ -30,41 +34,45 @@ public class SpellingCheck extends Check {
       }
   }
 
-
   /** Initialize the checker, populate its dictionary with words */
   public void init() {
-    // populate the dictionary from the system's word list
-    BufferedReader br;
+
+    File jarFile = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
+    String dictPath = jarFile.getParent() + File.separator + DICT_FILENAME;
+    String customDictPath = jarFile.getParent() + File.separator + CUSTOM_DICT_FILENAME;
+
+    // populate the dictionary from the specified word list
     try {
-       br = new BufferedReader(new InputStreamReader(new FileInputStream("/usr/share/dict/words")));
+      populateDictionaryFromFile(dictPath);
     } catch (FileNotFoundException e) {
-        throw new RuntimeException("Dictionary not found", e);
+      throw new RuntimeException("Could not find dictionary file " + dictPath);
     }
+
+    // extend the dictionary with words from a custom word list
+    try {
+      populateDictionaryFromFile(customDictPath);
+    } catch (FileNotFoundException e) {
+      // custom dictionary is optional -> do nothing when file could not be found
+    }
+  }
+
+  private void populateDictionaryFromFile(String pathToDictionary) throws FileNotFoundException {
+    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(pathToDictionary)));
 
     String line;
     try {
-        while ((line = br.readLine()) != null) {
-            add(line);
-        }
+      while ((line = br.readLine()) != null) {
+        add(line);
+      }
     } catch (IOException e) {
-        throw new RuntimeException("Dictionary not readable", e);
+      throw new RuntimeException("Dictionary not readable", e);
     }
 
     try {
       br.close();
     } catch (IOException e) {
-        throw new RuntimeException("Dictionary not closeable", e);
+      throw new RuntimeException("Dictionary not closeable", e);
     }
-
-    // prefixes/suffixes
-    add("meta");
-    add("multi");
-
-    // non-dictionary identifiers (some even used in java by convention)
-    add("args");
-    add("serialVersionUID");
-    add("int");
-    add("filename");
   }
 
   @Override
